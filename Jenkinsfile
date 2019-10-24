@@ -80,7 +80,7 @@ pipeline {
 				withEnv(["PATH+EXTRA=$PROJ"]) {
 					//echo "yes ClonePolicy"
 					script {
-                 	   def policyId = sh(script: "akamai appsec --section default clone-policy ODPP_78900 --config=40539  --prefix=${env.BUILD_ID}9  --json | jq '.policyId'", returnStdout: true).trim()
+                 	   def policyId = sh(script: "akamai appsec --section default clone-policy ODPP_78900 --config=40539  --prefix=7${env.BUILD_ID}  --json | jq '.policyId'", returnStdout: true).trim()
                  	   println("policyId = ${policyId}")
                  	   sh(script: "akamai appsec --section default create-match-target --config=40539 --hostnames=${CONFIGNAME} --paths='/*' --policy=${policyId} ", returnStdout: true).trim()
                  	   
@@ -103,7 +103,7 @@ pipeline {
 					script {
                  	   def clodV = sh(script: "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version | uniq", returnStdout: true).trim()
                  	   println("clodV = ${clodV}")
-                 	   sh(script: "echo '{\"additionalPropertyNames\":[\"${clodV}\"],\"network\":\"staging\",\"version\":\"4\"}' | http -v --auth-type edgegrid -a default: POST :/cloudlets/api/v2/policies/17562/versions/6/activations", returnStdout: true).trim()                 	   
+                 	   sh(script: "echo '{\"additionalPropertyNames\":[\"${clodV}\"],\"network\":\"staging\",\"version\":\"4\"}' | http -v --auth-type edgegrid -a default: POST :/cloudlets/api/v2/policies/17562/versions/${clodV}/activations", returnStdout: true).trim()                 	   
                 	}
 					//sh "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == "prod")' | jq '.policyInfo | select (.status == "active")' | jq .version | uniq > ClodV.txt"
 					//archiveArtifacts "ClodV.txt"
