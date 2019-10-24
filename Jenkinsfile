@@ -103,12 +103,11 @@ pipeline {
 					script {
                  	   def clodV = sh(script: "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == "active")' | jq .version | uniq", returnStdout: true).trim()
                  	   println("clodV = ${clodV}")
-                 	   //sh(script: "akamai appsec --section default create-match-target --config=40539 --hostnames=${CONFIGNAME} --paths='/*' --policy=${clodV} ", returnStdout: true).trim()
-                 	   
+                 	   sh(script: "echo '{\"additionalPropertyNames\":[\"${clodV}\"],\"network\":\"staging\",\"version\":\"4\"}' | http -v --auth-type edgegrid -a default: POST :/cloudlets/api/v2/policies/17562/versions/6/activations", returnStdout: true).trim()                 	   
                 	}
 					//sh "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == "prod")' | jq '.policyInfo | select (.status == "active")' | jq .version | uniq > ClodV.txt"
 					//archiveArtifacts "ClodV.txt"
-					//echo "yes ActivateConfig"
+					echo "what? "
 				}
 			}
 		}
