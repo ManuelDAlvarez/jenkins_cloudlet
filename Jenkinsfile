@@ -101,7 +101,7 @@ pipeline {
 			steps {
 				withEnv(["PATH+EXTRA=$PROJ"]) {
 					script {
-                 	   def clodV = sh(script: "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == "active")' | jq .version | uniq", returnStdout: true).trim()
+                 	   def clodV = sh(script: "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version | uniq", returnStdout: true).trim()
                  	   println("clodV = ${clodV}")
                  	   sh(script: "echo '{\"additionalPropertyNames\":[\"${clodV}\"],\"network\":\"staging\",\"version\":\"4\"}' | http -v --auth-type edgegrid -a default: POST :/cloudlets/api/v2/policies/17562/versions/6/activations", returnStdout: true).trim()                 	   
                 	}
