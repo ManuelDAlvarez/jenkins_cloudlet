@@ -9,90 +9,7 @@ pipeline {
     	PROJ = "/bin:/usr/local/bin:/usr/bin"
 	}
 	stages {
-		stage('Messages') {
-			steps {
-				//echo "Running ${env.BUILD_ID} on ${env.JENKINS_URL}"
-				echo "You say ${NETWORK} for ${CONFIGNAME}"
-				//slackSend(botUser: true, message: "${env.JOB_NAME} will create ${CONFIGNAME} add it to the DPP and push it to ${NETWORK} for ", color: '#1E90FF')
-				//slackSend(botUser: true, message: "${env.JOB_NAME} will create ${CONFIGNAME}, add it to the DPP, and push it to ${NETWORK} ", color: '#777555')
-			}
-		}
-		stage('cloneconfig') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//sh "akamai property create ${CONFIGNAME} --clone manuel.demo.com --hostnames ${CONFIGNAME} --edgehostname manuel.origin.edgekey.net"
-					//echo "hola"
-				}
-			}
-		}
-		stage('updateJSON') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					
-					//sh "akamai property retrieve ${CONFIGNAME} --file metadata.json"
-					//archiveArtifacts "metadata.json"
-					
-					//sh "cat metadata.json"
-					
-					//sh "sed 's/371349/378312/g' metadata.json > cpreplace.json"
-					//archiveArtifacts "cpreplace.json"
-					//sh "sed 's/\"customStatKey\": \"default\"//g' cpreplace.json > statkey.json"
-					//archiveArtifacts "statkey.json"
-					//sh "sed 's/toHost\": \"www.kloth.net\",/toHost\": \"www.kloth.net\"/g' statkey.json > 2metadata.json"
-					//archiveArtifacts "2metadata.json"
-					//sh "cat metadata.json"
-					//sh "cat 2metadata.json | grep 'toHost' "
-				}
-			}
-		}
-		stage('updateConfiguration') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//sh "akamai property update ${CONFIGNAME} --file 2metadata.json"
-				}
-			}
-		}
-		stage('activatedelivery') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//sh "akamai property activate ${CONFIGNAME} --network ${NETWORK}"
-				}
-			}
-		}
-		stage('CreateNewVersion') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//sh "akamai appsec --section default clone --config=40539 --version=STAGING"
-				}
-			}
-		}
-		stage('AddHostname') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//sh "akamai appsec --section default add-hostname --config=40539 ${CONFIGNAME}"
-				}
-			}
-		}
-		stage('ClonePolicy') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//script {
-                 	//   def policyId = sh(script: "akamai appsec --section default clone-policy ODPP_78900 --config=40539  --prefix=7${env.BUILD_ID}  --json | jq '.policyId'", returnStdout: true).trim()
-                 	//   println("policyId = ${policyId}")
-                 	//   sh(script: "akamai appsec --section default create-match-target --config=40539 --hostnames=${CONFIGNAME} --paths='/*' --policy=${policyId} ", returnStdout: true).trim()
-                 	 //  
-                	//}
-				}
-			}
-		}
-		stage('ActivateConfig') {
-			steps {
-				withEnv(["PATH+EXTRA=$PROJ"]) {
-					//sh "akamai appsec activate --section default --config=40539 --network=${NETWORK} --notes='automated' --notify=maalvare@akamai.com"
-				}
-			}
-		}
-
+		
 		stage('Cloudlet') {
 			steps {
 				withEnv(["PATH+EXTRA=$PROJ"]) {
@@ -100,11 +17,11 @@ pipeline {
 					sh "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")'"
 					sh "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version"
 					sh "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version | uniq"
-					//script {
-                 	//   def clodV = sh(script: "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version | uniq", returnStdout: true).trim()
-                 	//   println("clodV = ${clodV}")
+					script {
+                 	   def clodV = sh(script: "http --auth-type edgegrid -a default: :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version | uniq", returnStdout: true).trim()
+                 	   println("clodV = ${clodV}")
                  	//   sh(script: "echo '{\"additionalPropertyNames\":[\"${clodV}\"],\"network\":\"staging\",\"version\":\"4\"}' | http -v --auth-type edgegrid -a default: POST :/cloudlets/api/v2/policies/17562/versions/${clodV}/activations", returnStdout: true).trim()                 	   
-                	//}
+                	}
 				}
 			}
 		}
