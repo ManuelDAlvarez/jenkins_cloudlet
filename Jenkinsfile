@@ -90,9 +90,7 @@ pipeline {
 		stage('Cloudlet') {
 			steps {
 				withEnv(["PATH+EXTRA=$PROJ"]) {
-					sh "http -v --auth-type edgegrid -a default: GET :/cloudlets/api/v2/policies/17562/activations"
-					sh "http --auth-type edgegrid -a default: GET :/cloudlets/api/v2/policies/17562/activations | jq '.[].network'"
-					sh "http --auth-type edgegrid -a default: GET :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version"
+					//sh "http --auth-type edgegrid -a default: GET :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version"
 					script {
                  	   def clodV = sh(script: "http --auth-type edgegrid -a default: GET :/cloudlets/api/v2/policies/17562/activations | jq '.[] | select(.network == \"prod\")' | jq '.policyInfo | select (.status == \"active\")' | jq .version | uniq", returnStdout: true).trim()
                  	   println("clodV = ${clodV}")
